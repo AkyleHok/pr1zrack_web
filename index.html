@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Биржа заданий</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--tg-theme-bg-color, #17212b);
+            color: var(--tg-theme-text-color, #ffffff);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--tg-theme-secondary-bg-color, #242f3d);
+            color: var(--tg-theme-text-color, #ffffff);
+            text-decoration: none;
+        }
+        .btn:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #2b5278, #1a3a55);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #2b7835, #1d5a25);
+        }
+        .btn-secondary {
+            background: var(--tg-theme-secondary-bg-color, #2c2e32);
+        }
+        .btn-icon {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+        .btn-text {
+            flex: 1;
+            text-align: left;
+        }
+        .btn-arrow {
+            font-size: 18px;
+            color: var(--tg-theme-hint-color, #6c7a8e);
+        }
+        .divider {
+            height: 1px;
+            background: var(--tg-theme-hint-color, #2c3e50);
+            margin: 20px 0;
+            opacity: 0.3;
+        }
+        .status {
+            text-align: center;
+            padding: 12px;
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #6c7a8e);
+            margin-top: 20px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2b5278;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⭐ Биржа заданий</h1>
+            <p>Зарабатывай звёзды, выполняя задания</p>
+        </div>
+
+        <a href="https://t.me/pr1zrack_bot?start=tasks" class="btn btn-primary" target="_blank">
+            <span class="btn-icon">📋</span>
+            <span class="btn-text">Список заданий</span>
+            <span class="btn-arrow">→</span>
+        </a>
+
+        <a href="https://t.me/pr1zrack_bot?start=create" class="btn btn-success" target="_blank">
+            <span class="btn-icon">➕</span>
+            <span class="btn-text">Создать задание</span>
+            <span class="btn-arrow">→</span>
+        </a>
+
+        <div class="divider"></div>
+
+        <a href="https://t.me/pr1zrack_bot?start=my_tasks" class="btn" target="_blank">
+            <span class="btn-icon">📌</span>
+            <span class="btn-text">Мои задания (заказчик)</span>
+            <span class="btn-arrow">→</span>
+        </a>
+
+        <a href="https://t.me/pr1zrack_bot?start=my_works" class="btn" target="_blank">
+            <span class="btn-icon">🛠</span>
+            <span class="btn-text">Мои работы (исполнитель)</span>
+            <span class="btn-arrow">→</span>
+        </a>
+
+        <div class="divider"></div>
+
+        <a href="https://t.me/pr1zrack_bot?start=help" class="btn btn-secondary" target="_blank">
+            <span class="btn-icon">❓</span>
+            <span class="btn-text">Помощь</span>
+            <span class="btn-arrow">→</span>
+        </a>
+
+        <div class="status">
+            <span id="userName"></span>
+        </div>
+        
+        <div class="status" style="margin-top: 20px; font-size: 11px;">
+            🔹 Нажми на кнопку → откроется чат с ботом → команда выполнится автоматически
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Готово</div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            document.getElementById('userName').innerHTML = `👤 ${user.first_name || user.username || 'Гость'}`;
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 1500);
+        }
+        
+        showToast('Приложение загружено');
+    </script>
+</body>
+</html>
